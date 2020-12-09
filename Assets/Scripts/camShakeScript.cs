@@ -2,6 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/*
+ * A simple script to perform a camera shake effect when one unit attack the other.
+ * The strength of shacking is based on the damage.
+ */
+
 public class camShakeScript : MonoBehaviour
 {
 

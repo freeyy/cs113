@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 8451881439119908912}
   - component: {fileID: 1315453349430165384}
   - component: {fileID: 3775561923751759966}
-  - component: {fileID: 7691308615638825237}
+  - component: {fileID: 6486394101929489553}
   m_Layer: 0
   m_Name: tileDirt
   m_TagString: Tile
@@ -93,7 +93,7 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &7691308615638825237
+--- !u!114 &6486394101929489553
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -102,10 +102,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 6950781819746367086}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6f52c8deec960374b959b04d605d9cc1, type: 3}
+  m_Script: {fileID: 11500000, guid: 84c9813977a5d6747b1421948934e188, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _grid_index: {x: 0, y: 0, z: 0}
   tileX: 0
   tileY: 0
+  isWalkable: 1
+  moveCost: 1
   unitOnTile: {fileID: 0}
-  map: {fileID: 0}

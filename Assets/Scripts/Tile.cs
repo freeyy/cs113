@@ -1,36 +1,22 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using MapTileGridCreator.Core;
 using UnityEngine;
 
-[System.Serializable]
-
 /*
- * Tile structure within the tileMapScript
+ * Contains all the info for a tile.
  */
+[System.Serializable]
 public class Tile
 {
-
-    public string name;
-    public GameObject tileVisualPrefab;
-    public GameObject unitOnTile;
     public float movementCost = 1;
-    public bool isWalkable=true;
-    
-    /*
-    private int x;
-    private int y;
+    public bool isWalkable = true;
+    public GameObject tileOnMap;
 
-    
-    public Tile( int xLocation, int yLocation)
+    public Tile(Cell cell)
     {
-        x = xLocation;
-        y = yLocation;
+        movementCost = cell.moveCost;
+        isWalkable = cell.isWalkable;
+        tileOnMap = cell.gameObject;
     }
-
-    public void setCoords(int xLocation, int yLocation)
-    {
-        x = xLocation;
-        y = yLocation;
-    }
-    */
 }

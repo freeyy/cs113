@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using MapTileGridCreator.Core;
 
 public class UnitScript : MonoBehaviour
 {
@@ -25,7 +26,8 @@ public class UnitScript : MonoBehaviour
     public GameObject tileBeingOccupied;
 
     public GameObject damagedParticle;
-    //UnitStats
+
+    [Header("Unit States")]
     public string unitName;
     public int moveSpeed = 2;    
     public int attackRange = 1;
@@ -120,13 +122,6 @@ public class UnitScript : MonoBehaviour
         
      }
 
-    // Set the unit to gray when a move is done
-    public void unitStateWait()
-    {
-        gameObject.GetComponentInChildren<SpriteRenderer>().color = Color.gray;
-        //gameObject.GetComponentInChildren<Renderer>().material = unitWaitMaterial;
-    }
-
     // Reset the unit to be movable again
     public void moveAgain()
     {
@@ -136,24 +131,6 @@ public class UnitScript : MonoBehaviour
         gameObject.GetComponentInChildren<SpriteRenderer>().color = Color.white;
         setIdleAnimation();
         //gameObject.GetComponentInChildren<Renderer>().material = unitMaterial;
-    }
-
-
-    public movementStates getMovementStateEnum(int i)
-    {
-        switch (i)
-        {
-            case 0:
-                return movementStates.Unselected;
-            case 1:
-                return movementStates.Selected;
-            case 2:
-                return movementStates.Moved;
-            case 3:
-                return movementStates.Wait;
-            default:
-                return movementStates.Unselected;
-        }
     }
 
     public void setMovementState(int i)
@@ -184,37 +161,26 @@ public class UnitScript : MonoBehaviour
         updateHealthUI();
     }
 
-    public void displayDamage(int damageTaken)
-    {
-        damagePopupCanvas.enabled = true;
-        damagePopupText.SetText(damageTaken.ToString());
-    }
-
-    public void disableDisplayDamage()
-    {
-        damagePopupCanvas.enabled = false;
-    }
-
-    public IEnumerator displayDamageEnum(int damageTaken)
+    public IEnumerator displayDamage(int damageTaken)
     {
         combatQueue.Enqueue(1);
 
         damagePopupText.SetText(damageTaken.ToString());
         damagePopupCanvas.enabled = true;
+
+        Color backDrop = damageBackdrop.GetComponent<Image>().color;
+        Color damageValue = damagePopupText.color;
+
+        // gradually reduce transparency of text and backdrop (fade out)
         for (float f = 1f; f >= -0.01f; f -= 0.01f)
         {
-
-            Color backDrop = damageBackdrop.GetComponent<Image>().color;
-            Color damageValue = damagePopupText.color;
-
             backDrop.a = f;
             damageValue.a = f;
             damageBackdrop.GetComponent<Image>().color = backDrop;
             damagePopupText.color = damageValue;
             yield return new WaitForEndOfFrame();
         }
-
-        //damagePopup.enabled = false;
+        
         combatQueue.Dequeue();
     }
 
@@ -304,10 +270,19 @@ public class UnitScript : MonoBehaviour
         y = endNode.y;
 
         // update map
-        tileBeingOccupied.GetComponent<ClickableTileScript>().unitOnTile = null;    // remove unit occupation on previous tile
-        tileBeingOccupied = map.tilesOnMap[x, y];                                   // link current occupied tile to this unit
+        tileBeingOccupied.GetComponent<Cell>().unitOnTile = null;    // remove unit occupation on previous tile
+        tileBeingOccupied = map.tiles[x, y].tileOnMap;                                   // link current occupied tile to this unit
         movementQueue.Dequeue();
     }
+
+
+    #region public helper
+    public bool isSelected() { return unitMoveState == movementStates.Selected; }
+    public bool isUnselected() { return unitMoveState == movementStates.Unselected; }
+    public bool isWaiting() { return unitMoveState == movementStates.Wait; }
+    public bool isMoved() { return unitMoveState == movementStates.Moved; }
+   
+    #endregion
 
 
     /*
@@ -331,6 +306,7 @@ public class UnitScript : MonoBehaviour
         completedMovement = false;
     }
 
+
     public void setSelectedAnimation()
     {
         
@@ -352,7 +328,7 @@ public class UnitScript : MonoBehaviour
     }
     public void setWaitIdleAnimation()
     {
-        
+        gameObject.GetComponentInChildren<SpriteRenderer>().color = Color.gray;
         animator.SetTrigger("toIdleWait");
     }
        

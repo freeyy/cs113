@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using MapTileGridCreator.Core;
 
 /*
  * Script for gameManager:
@@ -11,22 +12,22 @@ using UnityEngine;
  *  - MapUI Display
  *  - Selected Unit
  */
+
+
 public class tileMapScript : MonoBehaviour    
 {
+    [Header("Map Size")]
+    public int mapSizeX;
+    public int mapSizeY;
+
     //Reference holders for the other two scripts that are currently running
-    //alongside this script
     [Header("Manager Scripts")]
     public battleManagerScript BMS;
     public gameManagerScript GMS;
 
-    //List of tiles that are used to generate the map
-    //Try changing tilesTypes to enum later   
-    [Header("Tiles")]
-    public Tile[] tileTypes;
-    public int[,] tiles;
-
-    //List of tile gameObjects on the board
-    public GameObject[,] tilesOnMap;
+    //List of tile data structure  (corresponding to Tile game objects)
+    [Header("Tiles(config)")]
+    public Tile[,] tiles;
 
     // appears when a unit is selected
     // layer: mapCursorUI -> mapPathUI -> mapRangeUI -> tile
@@ -57,10 +58,6 @@ public class tileMapScript : MonoBehaviour
     public GameObject UIMapCursorContainer;             // contains all the map
     public GameObject UIMapPathContainer;               // the route arrow
     
-    //This is the map size 
-    [Header("Board Size")]
-    public int mapSizeX;
-    public int mapSizeY;
 
     //In the update() function mouse down raycast sets this unit
     [Header("Selected Unit Info")]
@@ -87,50 +84,53 @@ public class tileMapScript : MonoBehaviour
     public Material blueUIMat;
 
 
-    #region private members
     public float rightClickTime = -1;
-    #endregion
+
+    private void Awake()
+    {
+        graph = new Node[mapSizeX, mapSizeY];
+        tiles = new Tile[mapSizeX, mapSizeY];
+        quadOnMapRange = new GameObject[mapSizeX, mapSizeY];
+        quadOnMapPath = new GameObject[mapSizeX, mapSizeY];
+        quadOnMapCursor = new GameObject[mapSizeX, mapSizeY];
+    }
 
 
     private void Start()
     {
-        //Get the battlemanager running
-        //BMS = GetComponent<battleManagerScript>();
-        //GMS = GetComponent<gameManagerScript>();
-        //Generate the map info that will be used
-        generateMapInfo();
+        //With the generated info this function will read the info and produce the map
+        createTileObjectsFromPrefab();
+        createGridUIObjects();
         //Generate pathfinding graph
         generatePathFindingGraph();
-        //With the generated info this function will read the info and produce the map
-        generateMapVisuals();
         //Put pre-set units on board
         bindTileWithUnits();
     }
 
     private void Update()
     {
+        UnitScript selectedUnitScript = selectedUnit ? selectedUnit.GetComponent<UnitScript>() : null;
 
         //If input is left mouse down then select the unit
         if (Input.GetMouseButtonDown(0))
         {
-            if (selectedUnit == null)
+            if (selectedUnitScript == null)
             {
                 //mouseClickToSelectUnit();
                 mouseClickToSelectUnitV2();
-
             }
             //After a unit has been selected then if we get a mouse click, we need to check if the unit has entered the selection state (1) 'Selected'
             //Move the unit
-            else if (selectedUnit.GetComponent<UnitScript>().unitMoveState == selectedUnit.GetComponent<UnitScript>().getMovementStateEnum(1) && selectedUnit.GetComponent<UnitScript>().movementQueue.Count == 0)
+            else if (selectedUnitScript.isSelected() && selectedUnitScript.movementQueue.Count == 0)
             {
                 if (selectTileToMoveTo())
                 {
                     //selectedSound.Play();
                     Debug.Log("movement path has been located");
-                    unitSelectedPreviousX = selectedUnit.GetComponent<UnitScript>().x;
-                    unitSelectedPreviousY = selectedUnit.GetComponent<UnitScript>().y;
-                    previousOccupiedTile = selectedUnit.GetComponent<UnitScript>().tileBeingOccupied;
-                    selectedUnit.GetComponent<UnitScript>().setWalkingAnimation();
+                    unitSelectedPreviousX = selectedUnitScript.x;
+                    unitSelectedPreviousY = selectedUnitScript.y;
+                    previousOccupiedTile = selectedUnitScript.tileBeingOccupied;
+                    selectedUnitScript.setWalkingAnimation();
                     moveUnit();
                     
                     StartCoroutine(moveUnitAndFinalize());
@@ -139,36 +139,34 @@ public class tileMapScript : MonoBehaviour
 
             }
             //Finalize the movement
-            else if(selectedUnit.GetComponent<UnitScript>().unitMoveState == selectedUnit.GetComponent<UnitScript>().getMovementStateEnum(2))
+            else if(selectedUnitScript.isMoved())
             {
                 finalizeOption();
             }
-            
         }
 
-        // Unselect unit with the right click
+        // Undo move operation of a unit with right-click
         // Note that we need to seperate this operation with holding-right-mouse-button
-
         if (Input.GetMouseButtonDown(1))
         {
             rightClickTime = Time.time;
         }
 
         if (Input.GetMouseButtonUp(1)) { 
-            if (selectedUnit != null && Time.time - rightClickTime < .2)
+            if (selectedUnitScript != null && Time.time - rightClickTime < .2)
             {
-                if (selectedUnit.GetComponent<UnitScript>().movementQueue.Count == 0 && selectedUnit.GetComponent<UnitScript>().combatQueue.Count==0)
-                {
-                    if (selectedUnit.GetComponent<UnitScript>().unitMoveState != selectedUnit.GetComponent<UnitScript>().getMovementStateEnum(3))
-                    {
-                        //unselectedSound.Play();
-                        selectedUnit.GetComponent<UnitScript>().setIdleAnimation();
-                        deselectUnit();
-                    }
+                // if unit not in combat or movement, undo the last movement
+                if (selectedUnitScript.movementQueue.Count == 0 && selectedUnitScript.combatQueue.Count == 0 
+                    && !selectedUnitScript.isWaiting())
+                { 
+                    //unselectedSound.Play();
+                    selectedUnitScript.setIdleAnimation();
+                    deselectUnit();
                 }
-                else if (selectedUnit.GetComponent<UnitScript>().movementQueue.Count == 1)
+                // if unit is in movement, right-click will speed up the process
+                else if (selectedUnitScript.movementQueue.Count == 1)
                 {
-                    selectedUnit.GetComponent<UnitScript>().visualMovementSpeed = 0.5f;
+                    selectedUnitScript.visualMovementSpeed = 0.5f;
                 }
             }
         }
@@ -176,81 +174,11 @@ public class tileMapScript : MonoBehaviour
         
     }
     
-    //This is from quill18Create's tutorial
-    //You can find it by searching for grid based movement on youtube, he goes into explaining how everything works
-    //The map layouts a bit different
-    //all this does is set the tiles[x,y] to the corresponding tile
-    public void generateMapInfo()
-    {
-        tiles = new int[mapSizeX, mapSizeY];
-        for (int x = 0; x < mapSizeX; x++)
-        {
-            for (int y = 0; y < mapSizeY; y++)
-            {
-                tiles[x, y] = 0;
-            }
-        }
-        tiles[2, 7] = 2;
-        tiles[3, 7] = 2;
-       
-        tiles[6, 7] = 2;
-        tiles[7, 7] = 2;
 
-        tiles[2, 2] = 2;
-        tiles[3, 2] = 2;
-       
-        tiles[6, 2] = 2;
-        tiles[7, 2] = 2;
-
-        tiles[0, 3] = 3;
-        tiles[1, 3] = 3;
-        tiles[0, 2] = 3;
-        tiles[1, 2] = 3;
-
-        tiles[0, 6] = 3;
-        tiles[1, 6] = 3;
-        tiles[2, 6] = 3;
-        tiles[0, 7] = 3;
-        tiles[1, 7] = 3;
-
-        tiles[2, 3] = 3;
-        tiles[0, 4] = 1;
-        tiles[0, 5] = 1;
-        tiles[1, 4] = 1;
-        tiles[1, 5] = 1;
-        tiles[2, 4] = 3;
-        tiles[2, 5] = 3;
-
-        tiles[4, 4] = 1;
-        tiles[5, 4] = 1;
-        tiles[4, 5] = 1;
-        tiles[5, 5] = 1;
-
-        tiles[7, 3] = 3;
-        tiles[8, 3] = 3;
-        tiles[9, 3] = 3;
-        tiles[8, 2] = 3;
-        tiles[9, 2] = 3;
-        tiles[7, 4] = 3;
-        tiles[7, 5] = 3;
-        tiles[7, 6] = 3;
-        tiles[8, 6] = 3;
-        tiles[9, 6] = 3;
-        tiles[8, 7] = 3;
-        tiles[9, 7] = 3;
-        tiles[8, 4] = 1;
-        tiles[8, 5] = 1;
-        tiles[9, 4] = 1;
-        tiles[9, 5] = 1;
-
-
-    }
     //Creates the graph for the pathfinding, it sets up the neighbours
     //This is also from Quill18Create's tutorial
     public void generatePathFindingGraph()
     {
-        graph = new Node[mapSizeX, mapSizeY];
-
         //initialize graph 
         for (int x = 0; x < mapSizeX; x++)
         {
@@ -292,32 +220,25 @@ public class tileMapScript : MonoBehaviour
         }
     }
 
-
-    //In: 
-    //Out: void
-    //Desc: This instantiates all the information for the map, the UI Quads and the map tiles
-    public void generateMapVisuals()
+    //Desc: This instantiates all the information for the map, the UI Quads and the map tiles, 
+    //      from the prefab scene.
+    public void createTileObjectsFromPrefab()
     {
-        //generate list of actual tileGameObjects
-        tilesOnMap = new GameObject[mapSizeX, mapSizeY];
-        quadOnMapRange = new GameObject[mapSizeX, mapSizeY];
-        quadOnMapPath = new GameObject[mapSizeX, mapSizeY];
-        quadOnMapCursor = new GameObject[mapSizeX, mapSizeY];
-        int index;
+        // generate tiles from existing 3D Objects
+        Cell[] cs = tileContainer.GetComponentsInChildren<Cell>();
+        foreach (Cell cell in cs)
+        {
+            tiles[cell.tileX, cell.tileY] = new Tile(cell);
+        }
+    }
+
+    public void createGridUIObjects()
+    {
         for (int x = 0; x < mapSizeX; x++)
         {
             for (int y = 0; y < mapSizeY; y++)
             {
-                index = tiles[x, y];
-                GameObject newTile = Instantiate(tileTypes[index].tileVisualPrefab, new Vector3(x, 0, y), Quaternion.identity);
-                newTile.GetComponent<ClickableTileScript>().tileX = x;
-                newTile.GetComponent<ClickableTileScript>().tileY = y;
-                newTile.GetComponent<ClickableTileScript>().map = this;
-                newTile.transform.SetParent(tileContainer.transform);
-                tilesOnMap[x, y] = newTile;
-
-              
-                GameObject gridUI = Instantiate(mapRangeUI, new Vector3(x, 0.501f, y),Quaternion.Euler(90f,0,0));
+                GameObject gridUI = Instantiate(mapRangeUI, new Vector3(x, 0.501f, y), Quaternion.Euler(90f, 0, 0));
                 gridUI.transform.SetParent(UIMapRangeContainer.transform);
                 quadOnMapRange[x, y] = gridUI;
 
@@ -326,12 +247,12 @@ public class tileMapScript : MonoBehaviour
                 quadOnMapPath[x, y] = gridUIForPathfindingDisplay;
 
                 GameObject gridUICursor = Instantiate(mapCursorUI, new Vector3(x, 0.503f, y), Quaternion.Euler(90f, 0, 0));
-                gridUICursor.transform.SetParent(UIMapCursorContainer.transform);              
+                gridUICursor.transform.SetParent(UIMapCursorContainer.transform);
                 quadOnMapCursor[x, y] = gridUICursor;
-
             }
         }
     }
+
 
     //Moves the unit
     public void moveUnit()
@@ -362,8 +283,8 @@ public class tileMapScript : MonoBehaviour
             foreach (Transform unitOnTeam in team) { 
                 int unitX = unitOnTeam.GetComponent<UnitScript>().x;
                 int unitY = unitOnTeam.GetComponent<UnitScript>().y;
-                unitOnTeam.GetComponent<UnitScript>().tileBeingOccupied = tilesOnMap[unitX, unitY];
-                tilesOnMap[unitX, unitY].GetComponent<ClickableTileScript>().unitOnTile = unitOnTeam.gameObject;
+                unitOnTeam.GetComponent<UnitScript>().tileBeingOccupied = tiles[unitX, unitY].tileOnMap;
+                tiles[unitX, unitY].tileOnMap.GetComponent<Cell>().unitOnTile = unitOnTeam.gameObject;
             }
             
         }
@@ -464,12 +385,7 @@ public class tileMapScript : MonoBehaviour
         }
         //Now currPath is from target to our source, we need to reverse it from source to target.
         currentPath.Reverse();
-
         selectedUnit.GetComponent<UnitScript>().path = currentPath;
-       
-
-
-
     }
 
     //In: tile's x and y position
@@ -477,18 +393,11 @@ public class tileMapScript : MonoBehaviour
     //Desc: checks the cost of the tile for a unit to enter
     public float costToEnterTile(int x, int y)
     {
-
         if (unitCanEnterTile(x, y) == false)
         {
             return Mathf.Infinity;
-
         }
-
-        //Gotta do the math here
-        Tile t = tileTypes[tiles[x, y]];
-        float dist = t.movementCost;
-
-        return dist;
+        return tiles[x, y].movementCost;
     }
 
     //change this when we add movement types
@@ -497,14 +406,14 @@ public class tileMapScript : MonoBehaviour
     //Desc: if the tile is not occupied by another team's unit, then you can walk through and if the tile is walkable 
     public bool unitCanEnterTile(int x, int y)
     {
-        if (tilesOnMap[x, y].GetComponent<ClickableTileScript>().unitOnTile != null)
+        if (tiles[x, y].tileOnMap.GetComponent<Cell>().unitOnTile != null)
         {
-            if (tilesOnMap[x, y].GetComponent<ClickableTileScript>().unitOnTile.GetComponent<UnitScript>().teamNum != selectedUnit.GetComponent<UnitScript>().teamNum)
+            if (tiles[x, y].tileOnMap.GetComponent<Cell>().unitOnTile.GetComponent<UnitScript>().teamNum != selectedUnit.GetComponent<UnitScript>().teamNum)
             {
                 return false;
             }
         }
-        return tileTypes[tiles[x, y]].isWalkable;
+        return tiles[x, y].isWalkable;
     }
 
     
@@ -530,12 +439,12 @@ public class tileMapScript : MonoBehaviour
                
                 if (hit.transform.gameObject.CompareTag("Tile"))
                 {
-                    if (hit.transform.GetComponent<ClickableTileScript>().unitOnTile != null)
+                    if (hit.transform.GetComponent<Cell>().unitOnTile != null)
                     {
 
 
-                        tempSelectedUnit = hit.transform.GetComponent<ClickableTileScript>().unitOnTile;
-                        if (tempSelectedUnit.GetComponent<UnitScript>().unitMoveState == tempSelectedUnit.GetComponent<UnitScript>().getMovementStateEnum(0)
+                        tempSelectedUnit = hit.transform.GetComponent<Cell>().unitOnTile;
+                        if (tempSelectedUnit.GetComponent<UnitScript>().isUnselected()
                             && tempSelectedUnit.GetComponent<UnitScript>().teamNum == GMS.currentTeam
                             )
                         {
@@ -554,8 +463,8 @@ public class tileMapScript : MonoBehaviour
                 {
                     
                     tempSelectedUnit = hit.transform.parent.gameObject;
-                    if (tempSelectedUnit.GetComponent<UnitScript>().unitMoveState == tempSelectedUnit.GetComponent<UnitScript>().getMovementStateEnum(0)
-                          && tempSelectedUnit.GetComponent<UnitScript>().teamNum == GMS.currentTeam
+                    if (tempSelectedUnit.GetComponent<UnitScript>().isUnselected()
+                            && tempSelectedUnit.GetComponent<UnitScript>().teamNum == GMS.currentTeam
                         )
                     {
 
@@ -573,7 +482,7 @@ public class tileMapScript : MonoBehaviour
                 }
             }
 
-         }
+            }
     }
 
 
@@ -583,10 +492,10 @@ public class tileMapScript : MonoBehaviour
     //Desc: finalizes the movement, sets the tile the unit moved to as occupied, etc
     public void finalizeMovementPosition()
     {
-        tilesOnMap[selectedUnit.GetComponent<UnitScript>().x, selectedUnit.GetComponent<UnitScript>().y].GetComponent<ClickableTileScript>().unitOnTile = selectedUnit;
+        int x = selectedUnit.GetComponent<UnitScript>().x;
+        int y = selectedUnit.GetComponent<UnitScript>().y;
+        tiles[x, y].tileOnMap.GetComponent<Cell>().unitOnTile = selectedUnit;
         //After a unit has been moved we will set the unitMoveState to (2) the 'Moved' state
-
-
         selectedUnit.GetComponent<UnitScript>().setMovementState(2);
        
         highlightUnitAttackOptionsFromPosition();
@@ -604,12 +513,12 @@ public class tileMapScript : MonoBehaviour
         if (unitSelected == false && GMS.tileBeingDisplayed!=null)
         {
 
-            if (GMS.tileBeingDisplayed.GetComponent<ClickableTileScript>().unitOnTile != null)
+            if (GMS.tileBeingDisplayed.GetComponent<Cell>().unitOnTile != null)
             {
-                GameObject tempSelectedUnit = GMS.tileBeingDisplayed.GetComponent<ClickableTileScript>().unitOnTile;
-                if (tempSelectedUnit.GetComponent<UnitScript>().unitMoveState == tempSelectedUnit.GetComponent<UnitScript>().getMovementStateEnum(0)
-                               && tempSelectedUnit.GetComponent<UnitScript>().teamNum == GMS.currentTeam
-                               )
+                GameObject tempSelectedUnit = GMS.tileBeingDisplayed.GetComponent<Cell>().unitOnTile;
+                if (tempSelectedUnit.GetComponent<UnitScript>().isUnselected()
+                                && tempSelectedUnit.GetComponent<UnitScript>().teamNum == GMS.currentTeam
+                                )
                 {
                     disableHighlightUnitRange();
                     //selectedSound.Play();
@@ -642,9 +551,9 @@ public class tileMapScript : MonoBehaviour
         //If the tile has been clicked then we need to check if there is a unit on it
         if (hit.transform.gameObject.CompareTag("Tile"))
         {
-            if (hit.transform.GetComponent<ClickableTileScript>().unitOnTile != null)
+            if (hit.transform.GetComponent<Cell>().unitOnTile != null)
             {
-                GameObject unitOnTile = hit.transform.GetComponent<ClickableTileScript>().unitOnTile;
+                GameObject unitOnTile = hit.transform.GetComponent<Cell>().unitOnTile;
                 int unitX = unitOnTile.GetComponent<UnitScript>().x;
                 int unitY = unitOnTile.GetComponent<UnitScript>().y;
 
@@ -652,7 +561,6 @@ public class tileMapScript : MonoBehaviour
                 {
                     disableHighlightUnitRange();
                     Debug.Log("ITS THE SAME UNIT JUST WAIT");
-                    selectedUnit.GetComponent<UnitScript>().unitStateWait();
                     selectedUnit.GetComponent<UnitScript>().setWaitIdleAnimation();
                     selectedUnit.GetComponent<UnitScript>().setMovementState(3);
                     deselectUnit();
@@ -665,7 +573,7 @@ public class tileMapScript : MonoBehaviour
                         {
                             Debug.Log("We clicked an enemy that should be attacked");
                             Debug.Log(selectedUnit.GetComponent<UnitScript>().currentHealthPoints);
-                            StartCoroutine(BMS.attack(selectedUnit, unitOnTile));
+                            StartCoroutine(BMS.doAttack(selectedUnit, unitOnTile));
 
                             
                             StartCoroutine(deselectAfterMovements(selectedUnit, unitOnTile));
@@ -683,7 +591,6 @@ public class tileMapScript : MonoBehaviour
             {
                 disableHighlightUnitRange();
                 Debug.Log("ITS THE SAME UNIT JUST WAIT");
-                selectedUnit.GetComponent<UnitScript>().unitStateWait();
                 selectedUnit.GetComponent<UnitScript>().setWaitIdleAnimation();
                 selectedUnit.GetComponent<UnitScript>().setMovementState(3);
                 deselectUnit();
@@ -697,7 +604,7 @@ public class tileMapScript : MonoBehaviour
                         Debug.Log("We clicked an enemy that should be attacked");
                         Debug.Log("Add Code to Attack enemy");
                         //selectedUnit.GetComponent<UnitScript>().setAttackAnimation();
-                        StartCoroutine(BMS.attack(selectedUnit, unitClicked));
+                        StartCoroutine(BMS.doAttack(selectedUnit, unitClicked));
 
                         // selectedUnit.GetComponent<UnitScript>().wait();
                         //Check if soemone has won
@@ -719,7 +626,7 @@ public class tileMapScript : MonoBehaviour
         
         if (selectedUnit != null)
         {
-            if (selectedUnit.GetComponent<UnitScript>().unitMoveState == selectedUnit.GetComponent<UnitScript>().getMovementStateEnum(1))
+            if (selectedUnit.GetComponent<UnitScript>().isSelected())
             {
             disableHighlightUnitRange();
             disableUnitUIRoute();
@@ -729,7 +636,7 @@ public class tileMapScript : MonoBehaviour
             selectedUnit = null;
             unitSelected = false;
             }
-            else if (selectedUnit.GetComponent<UnitScript>().unitMoveState == selectedUnit.GetComponent<UnitScript>().getMovementStateEnum(3) )
+            else if (selectedUnit.GetComponent<UnitScript>().isWaiting())
             {
                 disableHighlightUnitRange();
                 disableUnitUIRoute();
@@ -740,8 +647,11 @@ public class tileMapScript : MonoBehaviour
             {
                 disableHighlightUnitRange();
                 disableUnitUIRoute();
-                tilesOnMap[selectedUnit.GetComponent<UnitScript>().x, selectedUnit.GetComponent<UnitScript>().y].GetComponent<ClickableTileScript>().unitOnTile = null;
-                tilesOnMap[unitSelectedPreviousX, unitSelectedPreviousY].GetComponent<ClickableTileScript>().unitOnTile = selectedUnit;
+                int x = selectedUnit.GetComponent<UnitScript>().x;
+                int y = selectedUnit.GetComponent<UnitScript>().y;
+
+                tiles[x, y].tileOnMap.GetComponent<Cell>().unitOnTile = null;
+                tiles[unitSelectedPreviousX, unitSelectedPreviousY].tileOnMap.GetComponent<Cell>().unitOnTile = selectedUnit;
 
                 selectedUnit.GetComponent<UnitScript>().x = unitSelectedPreviousX;
                 selectedUnit.GetComponent<UnitScript>().y = unitSelectedPreviousY;
@@ -778,9 +688,9 @@ public class tileMapScript : MonoBehaviour
         foreach (Node n in totalAttackableTiles)
         {
 
-            if (tilesOnMap[n.x, n.y].GetComponent<ClickableTileScript>().unitOnTile != null)
+            if (tiles[n.x, n.y].tileOnMap.GetComponent<Cell>().unitOnTile != null)
             {
-                GameObject unitOnCurrentlySelectedTile = tilesOnMap[n.x, n.y].GetComponent<ClickableTileScript>().unitOnTile;
+                GameObject unitOnCurrentlySelectedTile = tiles[n.x, n.y].tileOnMap.GetComponent<Cell>().unitOnTile;
                 if (unitOnCurrentlySelectedTile.GetComponent<UnitScript>().teamNum != selectedUnit.GetComponent<UnitScript>().teamNum)
                 {
                     finalEnemyUnitsInMovementRange.Add(n);
@@ -1099,13 +1009,13 @@ public class tileMapScript : MonoBehaviour
            
             if (hit.transform.gameObject.CompareTag("Tile")){
                
-                int clickedTileX = hit.transform.GetComponent<ClickableTileScript>().tileX;
-                int clickedTileY = hit.transform.GetComponent<ClickableTileScript>().tileY;
+                int clickedTileX = hit.transform.GetComponent<Cell>().tileX;
+                int clickedTileY = hit.transform.GetComponent<Cell>().tileY;
                 Node nodeToCheck = graph[clickedTileX, clickedTileY];
                 //var unitScript = selectedUnit.GetComponent<UnitScript>();
 
                 if (selectedUnitMoveRange.Contains(nodeToCheck)) {
-                    if ((hit.transform.gameObject.GetComponent<ClickableTileScript>().unitOnTile == null || hit.transform.gameObject.GetComponent<ClickableTileScript>().unitOnTile == selectedUnit) && (selectedUnitMoveRange.Contains(nodeToCheck)))
+                    if ((hit.transform.gameObject.GetComponent<Cell>().unitOnTile == null || hit.transform.gameObject.GetComponent<Cell>().unitOnTile == selectedUnit) && (selectedUnitMoveRange.Contains(nodeToCheck)))
                     {
                         Debug.Log("We have finally selected the tile to move to");
                         generatePathTo(clickedTileX, clickedTileY);
@@ -1131,6 +1041,5 @@ public class tileMapScript : MonoBehaviour
         }
         return false;
     }
-
-
 }
+

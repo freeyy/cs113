@@ -5,7 +5,7 @@ using UnityEngine;
 
 /*
  *  This script is for the battle system.
- *  It controls the animation of attacks between any two units.
+ *  It controls the animation/HP/... of a battle between any two units.
  *  Functions are called from [tileMapScript] when user launch an attack.
  */
 
@@ -15,12 +15,70 @@ public class battleManagerScript : MonoBehaviour
     public gameManagerScript GMS;
     
     private bool battleStatus;  // to check if battle has finished
-    
-    //In: two 'unit' game Objects the initiator is the unit that initiated the attack and the recipient is the receiver
-    //Out: void - units take damage or are destroyed if the hp threshold is <= 
-    //Desc: This is usually called by another script which has access to the two units and then just sets the units as parameters for the function
-    
-    public void battle(GameObject initiator, GameObject recipient)
+
+    //In: two unit gameObjects the attacker and the receiver
+    //Desc: perform attack animation and results on two units
+    public IEnumerator doAttack(GameObject unit, GameObject enemy)
+    {
+        battleStatus = true;
+        float elapsedTime = 0;
+        Vector3 startingPos = unit.transform.position;
+        Vector3 endingPos = enemy.transform.position;
+
+        
+        unit.GetComponent<UnitScript>().setWalkingAnimation();  // switch unit animation
+
+        // animation: a small movement to peform the attack
+        while (elapsedTime < .25f)
+        {
+            unit.transform.position = Vector3.Lerp(startingPos, startingPos+((((endingPos - startingPos) / (endingPos - startingPos).magnitude)).normalized*.5f), (elapsedTime / .25f));
+            elapsedTime += Time.deltaTime;
+            
+            yield return new WaitForEndOfFrame();
+        }
+        
+        while (battleStatus)
+        {
+            // shake the camera based on the damage
+            StartCoroutine(CSS.camShake(.2f,unit.GetComponent<UnitScript>().attackDamage,getDirection(unit,enemy)));
+            
+            // diplay damage on top of each unit
+            if(unit.GetComponent<UnitScript>().attackRange == enemy.GetComponent<UnitScript>().attackRange 
+                && enemy.GetComponent<UnitScript>().currentHealthPoints - unit.GetComponent<UnitScript>().attackDamage > 0)
+            {
+                StartCoroutine(unit.GetComponent<UnitScript>().displayDamage(enemy.GetComponent<UnitScript>().attackDamage));
+                StartCoroutine(enemy.GetComponent<UnitScript>().displayDamage(unit.GetComponent<UnitScript>().attackDamage));
+            }
+            else
+            {
+                StartCoroutine(enemy.GetComponent<UnitScript>().displayDamage(unit.GetComponent<UnitScript>().attackDamage));
+            }
+            
+            battleResult(unit, enemy);  // update HP of each unit
+            yield return new WaitForEndOfFrame();
+        }
+
+        // animation: unit go back to starting point before attack
+        if (unit != null)   
+        {
+            //StartCoroutine(returnAfterAttack(unit, startingPos));
+            elapsedTime = 0;
+            while (elapsedTime < .30f)
+            {
+                unit.transform.position = Vector3.Lerp(unit.transform.position, startingPos, (elapsedTime / .25f));
+                elapsedTime += Time.deltaTime;
+                yield return new WaitForEndOfFrame();
+            }
+            unit.GetComponent<UnitScript>().setWaitIdleAnimation(); // switch back unit animation to idle
+        }
+    }
+
+
+    #region Helper Func
+
+    //In: the initiator is the unit that initiated the attack and the recipient is the receiver
+    //Desc: Deal with HP and death of two units after a battle.
+    public void battleResult(GameObject initiator, GameObject recipient)
     {
         battleStatus = true;
         var initiatorUnit = initiator.GetComponent<UnitScript>();
@@ -30,10 +88,11 @@ public class battleManagerScript : MonoBehaviour
         //If the two units have the same attackRange then they can trade
         if (initiatorUnit.attackRange == recipientUnit.attackRange)
         {
-            GameObject tempParticle = Instantiate( recipientUnit.GetComponent<UnitScript>().damagedParticle,recipient.transform.position, recipient.transform.rotation);
+            GameObject tempParticle = Instantiate(recipientUnit.GetComponent<UnitScript>().damagedParticle, recipient.transform.position, recipient.transform.rotation);
             Destroy(tempParticle, 2f);
+
             recipientUnit.dealDamage(initiatorAtt);
-            if (checkIfDead(recipient))
+            if (isDead(recipient))
             {
                 //Set to null then remove, if the gameObject is destroyed before its removed it will not check properly
                 //This leads to the game not actually ending because the check to see if any units remains happens before the object
@@ -45,9 +104,8 @@ public class battleManagerScript : MonoBehaviour
                 return;
             }
 
-           
             initiatorUnit.dealDamage(recipientAtt);
-            if (checkIfDead(initiator))
+            if (isDead(initiator))
             {
                 initiator.transform.parent = null;
                 initiatorUnit.unitDie();
@@ -62,9 +120,9 @@ public class battleManagerScript : MonoBehaviour
         {
             GameObject tempParticle = Instantiate(recipientUnit.GetComponent<UnitScript>().damagedParticle, recipient.transform.position, recipient.transform.rotation);
             Destroy(tempParticle, 2f);
-           
+
             recipientUnit.dealDamage(initiatorAtt);
-            if (checkIfDead(recipient))
+            if (isDead(recipient))
             {
                 recipient.transform.parent = null;
                 recipientUnit.unitDie();
@@ -74,15 +132,19 @@ public class battleManagerScript : MonoBehaviour
                 return;
             }
         }
-
         battleStatus = false;
-
     }
 
-    //In: gameObject to check
-    //Out: boolean - true if unit is dead, false otherwise
-    //Desc: the health of the gameObject is checked (must be 'unit') or it'll break
-    public bool checkIfDead(GameObject unitToCheck)
+    //Desc: the vector3 which the unit needs to moveTowards is returned by this function
+    public Vector3 getDirection(GameObject unit, GameObject enemy)
+    {
+        Vector3 startingPos = unit.transform.position;
+        Vector3 endingPos = enemy.transform.position;
+        return (((endingPos - startingPos) / (endingPos - startingPos).magnitude)).normalized;
+    }
+
+    //Desc: return if a unit is dead. (HP <= 0)
+    private bool isDead(GameObject unitToCheck)
     {
         if (unitToCheck.GetComponent<UnitScript>().currentHealthPoints <= 0)
         {
@@ -91,103 +153,5 @@ public class battleManagerScript : MonoBehaviour
         return false;
     }
 
-    //In: gameObject to destroy
-    //Out: void
-    //Desc: the gameObject in the parameter is destroyed
-    public void destroyObject(GameObject unitToDestroy)
-    {
-        Destroy(unitToDestroy);
-    }
-
-    //In: two unit gameObjects the attacker and the receiver
-    //Out: this plays the animations for the battle
-    //Desc: this function calls all the functions for the battle 
-    public IEnumerator attack(GameObject unit, GameObject enemy)
-    {
-        battleStatus = true;
-        float elapsedTime = 0;
-        Vector3 startingPos = unit.transform.position;
-        Vector3 endingPos = enemy.transform.position;
-        unit.GetComponent<UnitScript>().setWalkingAnimation();
-        while (elapsedTime < .25f)
-        {
-           
-            unit.transform.position = Vector3.Lerp(startingPos, startingPos+((((endingPos - startingPos) / (endingPos - startingPos).magnitude)).normalized*.5f), (elapsedTime / .25f));
-            elapsedTime += Time.deltaTime;
-            
-            yield return new WaitForEndOfFrame();
-        }
-        
-        
-        
-        while (battleStatus)
-        {
-           
-            StartCoroutine(CSS.camShake(.2f,unit.GetComponent<UnitScript>().attackDamage,getDirection(unit,enemy)));
-            if(unit.GetComponent<UnitScript>().attackRange == enemy.GetComponent<UnitScript>().attackRange && enemy.GetComponent<UnitScript>().currentHealthPoints - unit.GetComponent<UnitScript>().attackDamage > 0)
-            {
-                StartCoroutine(unit.GetComponent<UnitScript>().displayDamageEnum(enemy.GetComponent<UnitScript>().attackDamage));
-                StartCoroutine(enemy.GetComponent<UnitScript>().displayDamageEnum(unit.GetComponent<UnitScript>().attackDamage));
-            }
-           
-            else
-            {
-                StartCoroutine(enemy.GetComponent<UnitScript>().displayDamageEnum(unit.GetComponent<UnitScript>().attackDamage));
-            }
-            
-            //unit.GetComponent<UnitScript>().displayDamage(enemy.GetComponent<UnitScript>().attackDamage);
-            //enemy.GetComponent<UnitScript>().displayDamage(unit.GetComponent<UnitScript>().attackDamage);
-            
-            battle(unit, enemy);
-            
-            yield return new WaitForEndOfFrame();
-        }
-        
-        if (unit != null)
-        {
-           StartCoroutine(returnAfterAttack(unit, startingPos));
-          
-        }
-       
-        
-
-       
-        //unit.GetComponent<UnitScript>().wait();
-
-    }
-
-    //In: unit that is returning to its position, the endPoint vector to return to
-    //Out: The unit returns back to its location
-    //Desc: the gameObject in the parameter is returned to the endPoint
-    public IEnumerator returnAfterAttack(GameObject unit, Vector3 endPoint) {
-        float elapsedTime = 0;
-        
-
-        while (elapsedTime < .30f)
-        {
-            unit.transform.position = Vector3.Lerp(unit.transform.position, endPoint, (elapsedTime / .25f));
-            elapsedTime += Time.deltaTime;
-            yield return new WaitForEndOfFrame();
-        }
-        
-        unit.GetComponent<UnitScript>().setWaitIdleAnimation();
-        unit.GetComponent<UnitScript>().unitStateWait();
-       
-        
-    }
-
-    //In: two 'unit' gameObjects 
-    //Out: vector3 the direction that the unit needs to moveTowards 
-    //Desc: the vector3 which the unit needs to moveTowards is returned by this function
-    public Vector3 getDirection(GameObject unit, GameObject enemy)
-    {
-        Vector3 startingPos = unit.transform.position;
-        Vector3 endingPos = enemy.transform.position;
-        return (((endingPos - startingPos) / (endingPos - startingPos).magnitude)).normalized;
-    }
-    
-
-
-
-
+    #endregion
 }

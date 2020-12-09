@@ -133,7 +133,7 @@ Canvas:
   m_SortingBucketNormalizedSize: 0
   m_AdditionalShaderChannelsFlag: 25
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 2
   m_TargetDisplay: 0
 --- !u!114 &5196414362050647718
 MonoBehaviour:
@@ -469,7 +469,11 @@ MonoBehaviour:
   teamNum: 0
   x: 0
   y: 0
+  coroutineRunning: 0
+  visualMovementSpeed: 0.15
+  animator: {fileID: 0}
   tileBeingOccupied: {fileID: 0}
+  damagedParticle: {fileID: 0}
   unitName: Infantry
   moveSpeed: 3
   attackRange: 1
@@ -477,14 +481,17 @@ MonoBehaviour:
   maxHealthPoints: 5
   currentHealthPoints: 0
   unitSprite: {fileID: 0}
-  words: {fileID: 5196414362192438212}
+  healthBarCanvas: {fileID: 0}
+  hitPointsText: {fileID: 0}
   healthBar: {fileID: 5196414363180054590}
-  unitMaterial: {fileID: 2100000, guid: d64c62263390b1248bffcc6d55a4426e, type: 2}
-  unitWaitMaterial: {fileID: 2100000, guid: 089b4f4377665ff4b8fd7d347753d397, type: 2}
+  damagePopupCanvas: {fileID: 0}
+  damagePopupText: {fileID: 0}
+  damageBackdrop: {fileID: 0}
   map: {fileID: 0}
   startPoint: {fileID: 0}
   endPoint: {fileID: 0}
   moveSpeedTime: 1
+  holder2D: {fileID: 0}
   unitInMovement: 0
   unitMoveState: 0
   completedMovement: 0

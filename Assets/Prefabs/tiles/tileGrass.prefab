@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 6712842887227129061}
   - component: {fileID: 4189121381800764253}
   - component: {fileID: 2019494968999890059}
-  - component: {fileID: 4818523973217560000}
+  - component: {fileID: 4222233293258941799}
   m_Layer: 0
   m_Name: tileGrass
   m_TagString: Tile
@@ -93,7 +93,7 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &4818523973217560000
+--- !u!114 &4222233293258941799
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -102,10 +102,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 5194323094182963899}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6f52c8deec960374b959b04d605d9cc1, type: 3}
+  m_Script: {fileID: 11500000, guid: 84c9813977a5d6747b1421948934e188, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _grid_index: {x: 0, y: 0, z: 0}
   tileX: 0
   tileY: 0
+  isWalkable: 1
+  moveCost: 2
   unitOnTile: {fileID: 0}
-  map: {fileID: 0}
