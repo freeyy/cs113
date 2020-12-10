@@ -406,6 +406,9 @@ public class tileMapScript : MonoBehaviour
     //Desc: if the tile is not occupied by another team's unit, then you can walk through and if the tile is walkable 
     public bool unitCanEnterTile(int x, int y)
     {
+        if (tiles[x, y] == null) {
+            Debug.LogError("NULL: " + x.ToString() + ", " + y.ToString());
+        }
         if (tiles[x, y].tileOnMap.GetComponent<Cell>().unitOnTile != null)
         {
             if (tiles[x, y].tileOnMap.GetComponent<Cell>().unitOnTile.GetComponent<UnitScript>().teamNum != selectedUnit.GetComponent<UnitScript>().teamNum)

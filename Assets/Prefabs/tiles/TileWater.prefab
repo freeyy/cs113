@@ -66,6 +66,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -110,10 +111,20 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 3924041320011041923}
     m_Modifications:
+    - target: {fileID: 1237712965878186699, guid: 12c6317288e2840469104569ed695a62,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7141147171923479341, guid: 12c6317288e2840469104569ed695a62,
         type: 3}
       propertyPath: m_Name
       value: tileWaterBase
+      objectReference: {fileID: 0}
+    - target: {fileID: 7840873911986023442, guid: 12c6317288e2840469104569ed695a62,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7840873911986023442, guid: 12c6317288e2840469104569ed695a62,
         type: 3}
@@ -132,6 +143,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7840873911986023442, guid: 12c6317288e2840469104569ed695a62,
         type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7840873911986023442, guid: 12c6317288e2840469104569ed695a62,
+        type: 3}
       propertyPath: m_LocalRotation.x
       value: -0
       objectReference: {fileID: 0}
@@ -144,16 +160,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalRotation.z
       value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7840873911986023442, guid: 12c6317288e2840469104569ed695a62,
-        type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7840873911986023442, guid: 12c6317288e2840469104569ed695a62,
-        type: 3}
-      propertyPath: m_RootOrder
-      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7840873911986023442, guid: 12c6317288e2840469104569ed695a62,
         type: 3}
