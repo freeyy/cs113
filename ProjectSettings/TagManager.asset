@@ -8,6 +8,7 @@ TagManager:
   - Tile
   - UI
   - Unit
+  - Building
   layers:
   - Default
   - TransparentFX

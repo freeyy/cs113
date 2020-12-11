@@ -23,6 +23,8 @@ public class gameManagerScript : MonoBehaviour
     [Header("Player UI")]
 
     public TMP_Text currentTeamUI;
+    public TMP_Text currentGoldUI;
+    public TMP_Text currentIncomeUI;
     public Canvas displayWinnerUI;
     public GameObject playerPhaseCanvas;
 
@@ -38,6 +40,16 @@ public class gameManagerScript : MonoBehaviour
     public int currentTeam;
     public GameObject team1;
     public GameObject team2;
+
+    [Header("Economy")]
+    public int Gold1;
+    public int Gold2;
+    public int income1;
+    public int income2;
+    public GameObject shopUI;
+    public GameObject occupyUI;
+    public GameObject building;
+    public GameObject occupier;
 
     [Header("Tile")]
     public tileMapScript TMS;
@@ -71,7 +83,9 @@ public class gameManagerScript : MonoBehaviour
     {
         currentTeam = 0;
         setCurrentTeamUI();
+        setCurrentGoldUI();
         teamHealthbarColorUpdate();
+        updateBuildingLight();
         displayingUnitInfo = false;
         playerPhaseAnim = playerPhaseCanvas.GetComponent<Animator>();
         playerPhaseText = playerPhaseCanvas.GetComponentInChildren<TextMeshProUGUI>();
@@ -85,10 +99,41 @@ public class gameManagerScript : MonoBehaviour
     // Des: 
     public void Update()
     {
+        // turn end when click on space button
+        if (Input.GetKeyDown("space"))
+        {
+            endTurn();
+        }
         //Always trying to see where the mouse is pointing
         ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(ray, out hit))
         {
+            // if a building is selected, open the shop UI
+            if (hit.transform.CompareTag("Building"))
+            {
+                building = hit.transform.gameObject;
+                if (Input.GetMouseButtonDown(0))
+                {
+                    if (building.GetComponent<Cell>().hasHolded == false)
+                    {
+                        if (building.GetComponent<Cell>().owner == currentTeam + 1 && building.GetComponent<Cell>().isBase == false)
+                        {
+                            shopUI.SetActive(true);
+                        }
+                        else
+                        {
+                            int buildingX = building.GetComponent<Cell>().spawnX;
+                            int buildingY = building.GetComponent<Cell>().spawnY;
+                            GameObject unitNearBuilding = SpawnPointOccupied(buildingX, buildingY);
+                            if (unitNearBuilding != null && unitNearBuilding.GetComponent<UnitScript>().teamNum == currentTeam)
+                            {
+                                occupyUI.SetActive(true);
+                                occupier = unitNearBuilding;
+                            }
+                        }
+                    }
+                }
+            }
             // update UI when cursor hovers above an object
             cursorUIUpdate();       // update cursor UI (highlights for unit/tile)
             unitInfoUIUpdate();     // update unit info UI 
@@ -169,12 +214,92 @@ public class gameManagerScript : MonoBehaviour
         }
         
     }
+
+    //In: building's position (x,y)
+    //Out: gameobject
+    //Desc: if a unit standing on the spawn point, return true; otherwise, return false
+    public GameObject SpawnPointOccupied(int x, int y)
+    {
+        GameObject[] units = GameObject.FindGameObjectsWithTag("Unit");
+        foreach (var u in units)
+        {
+            if (u.GetComponent<UnitScript>().x == x && u.GetComponent<UnitScript>().y == y)
+            {
+                return u;
+            }
+        }
+        return null;
+    }
+
+
     //In: 
     //Out: void
     //Desc: sets the current player Text in the UI
     public void setCurrentTeamUI()
     {
         currentTeamUI.SetText("Current Player is : Player " + (currentTeam+1).ToString());
+    }
+
+    //In:
+    //Out: void
+    //Desc: sets the current Gold Text and Income Text in the UI
+    public void setCurrentGoldUI()
+    {
+        updateIncome();
+        if (currentTeam == 0)
+        {
+            currentGoldUI.SetText("GOLD: " + Gold1.ToString());
+            currentIncomeUI.SetText("INCOME: " + income1.ToString());
+        }
+        else
+        {
+            currentGoldUI.SetText("GOLD: " + Gold2.ToString());
+            currentIncomeUI.SetText("INCOME: " + income2.ToString());
+        }
+    }
+
+    //In:
+    //Out: void
+    //Desc: update each player's income
+    public void updateIncome()
+    {
+        GameObject[] buildings = GameObject.FindGameObjectsWithTag("Building");
+        income1 = 0;
+        income2 = 0;
+        foreach (var b in buildings)
+        {
+            if (b.GetComponent<Cell>().owner == 1)
+            {
+                income1 += b.GetComponent<Cell>().income;
+            }
+            else if (b.GetComponent<Cell>().owner == 2)
+            {
+                income2 += b.GetComponent<Cell>().income;
+            }
+        }
+    }
+
+    //In:
+    //Out:
+    //Desc: update occupied buildings' light each turn
+    public void updateBuildingLight()
+    {
+        GameObject[] buildings = GameObject.FindGameObjectsWithTag("Building");
+        foreach (var b in buildings)
+        {
+            if (b.GetComponent<Cell>().owner != 0)
+            {
+                if (b.GetComponent<Cell>().owner == currentTeam + 1)
+                {
+                    b.transform.Find("Spot Light").GetComponent<Light>().color = Color.blue;
+                }
+                else
+                {
+                    b.transform.Find("Spot Light").GetComponent<Light>().color = Color.red;
+                }
+            }
+        }
+
     }
 
     //In: 
@@ -232,14 +357,22 @@ public class gameManagerScript : MonoBehaviour
             {
                 playerPhaseAnim.SetTrigger("slideLeftTrigger");
                 playerPhaseText.SetText("Player 2 Phase");
+                Gold1 += income1;
             }
             else if (currentTeam == 0)
             {
                 playerPhaseAnim.SetTrigger("slideRightTrigger");
                 playerPhaseText.SetText("Player 1 Phase");
+                Gold2 += income2;
             }
             teamHealthbarColorUpdate();
+            updateBuildingLight();
             setCurrentTeamUI();
+            setCurrentGoldUI();
+            if (building != null)
+            {
+                building.GetComponent<Cell>().hasHolded = false;
+            }
         }
     }
 
@@ -318,6 +451,34 @@ public class gameManagerScript : MonoBehaviour
                    
                 }
                
+            }
+        }
+
+        else if (hit.transform.CompareTag("Building"))
+        {
+            if (tileBeingDisplayed == null)
+            {
+                selectedXTile = hit.transform.gameObject.GetComponent<Cell>().tileX;
+                selectedYTile = hit.transform.gameObject.GetComponent<Cell>().tileY;
+                cursorX = selectedXTile;
+                cursorY = selectedYTile;
+                TMS.quadOnMapCursor[selectedXTile, selectedYTile].GetComponent<MeshRenderer>().enabled = true;
+                tileBeingDisplayed = hit.transform.gameObject;
+
+            }
+            else if (tileBeingDisplayed != hit.transform.gameObject)
+            {
+                selectedXTile = tileBeingDisplayed.GetComponent<Cell>().tileX;
+                selectedYTile = tileBeingDisplayed.GetComponent<Cell>().tileY;
+                TMS.quadOnMapCursor[selectedXTile, selectedYTile].GetComponent<MeshRenderer>().enabled = false;
+
+                selectedXTile = hit.transform.gameObject.GetComponent<Cell>().tileX;
+                selectedYTile = hit.transform.gameObject.GetComponent<Cell>().tileY;
+                cursorX = selectedXTile;
+                cursorY = selectedYTile;
+                TMS.quadOnMapCursor[selectedXTile, selectedYTile].GetComponent<MeshRenderer>().enabled = true;
+                tileBeingDisplayed = hit.transform.gameObject;
+
             }
         }
         //We aren't pointing at anything no cursor.

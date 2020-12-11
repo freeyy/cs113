@@ -176,7 +176,7 @@ GameObject:
   - component: {fileID: 7248910328161746837}
   m_Layer: 0
   m_Name: tileHomeBase
-  m_TagString: Tile
+  m_TagString: Building
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -220,6 +220,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -244,6 +245,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!65 &5660484070750089889
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -272,9 +274,16 @@ MonoBehaviour:
   _grid_index: {x: 0, y: 0, z: 0}
   tileX: 0
   tileY: 0
-  isWalkable: 1
+  isWalkable: 0
   moveCost: 1
   unitOnTile: {fileID: 0}
+  spawnX: 0
+  spawnY: 0
+  income: 100
+  owner: 0
+  Maxholdtime: 2
+  holdtime: 2
+  isBase: 1
 --- !u!1001 &267207763036663411
 PrefabInstance:
   m_ObjectHideFlags: 0

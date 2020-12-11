@@ -29,6 +29,17 @@ namespace MapTileGridCreator.Core
 		public bool isWalkable = true;
 		public int moveCost = 1;
 		public GameObject unitOnTile;
+
+        [Header("Building")]
+        // use for position where new units spawn
+        public int spawnX;
+        public int spawnY;
+        public int income;
+        public int owner = 0;
+        public int Maxholdtime = 2;
+        public int holdtime = 2;
+        public bool hasHolded;
+        public bool isBase = false;
 		#endregion
 
 		/// <summary>
