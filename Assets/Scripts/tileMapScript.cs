@@ -105,6 +105,12 @@ public class tileMapScript : MonoBehaviour
         generatePathFindingGraph();
         //Put pre-set units on board
         bindTileWithUnits();
+        // hightlight the spawn point of each building.
+        GameObject[] B = GameObject.FindGameObjectsWithTag("Building");
+        foreach (var b in B)
+        {
+            tiles[b.GetComponent<Cell>().spawnX, b.GetComponent<Cell>().spawnY].tileOnMap.GetComponent<Renderer>().material.color = Color.green;
+        }
     }
 
     private void Update()

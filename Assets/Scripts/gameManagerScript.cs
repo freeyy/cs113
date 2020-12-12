@@ -112,23 +112,35 @@ public class gameManagerScript : MonoBehaviour
             if (hit.transform.CompareTag("Building"))
             {
                 building = hit.transform.gameObject;
+                // if mouse left button is clicked
                 if (Input.GetMouseButtonDown(0))
                 {
+                    // if the unit on spawn point didn't occupy the building in this turn
                     if (building.GetComponent<Cell>().hasHolded == false)
                     {
+                        // if the player had occupied the building and the building is not the base
                         if (building.GetComponent<Cell>().owner == currentTeam + 1 && building.GetComponent<Cell>().isBase == false)
                         {
+                            // show the shop window
                             shopUI.SetActive(true);
                         }
                         else
                         {
+                            // get spawn point position
                             int buildingX = building.GetComponent<Cell>().spawnX;
                             int buildingY = building.GetComponent<Cell>().spawnY;
+                            // get the unit standing on the spawn point
                             GameObject unitNearBuilding = SpawnPointOccupied(buildingX, buildingY);
+                            // if there is a unit standing on the spawn point and it belongs to current player.
                             if (unitNearBuilding != null && unitNearBuilding.GetComponent<UnitScript>().teamNum == currentTeam)
                             {
-                                occupyUI.SetActive(true);
-                                occupier = unitNearBuilding;
+                                // check if the unit's state is waiting
+                                if (unitNearBuilding.GetComponent<UnitScript>().isWaiting())
+                                {
+                                    // show the occupy confirm window
+                                    occupyUI.SetActive(true);
+                                    occupier = unitNearBuilding;
+                                }
                             }
                         }
                     }
