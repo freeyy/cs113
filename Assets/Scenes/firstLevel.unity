@@ -789,9 +789,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Unit 1:
+  m_text: 'Tank beats everything!
 
-    Description'
+
+'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2100000, guid: 79459efec17a4d00a321bdcc27bbc385, type: 2}
@@ -9603,7 +9604,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
-    m_TransformParent: {fileID: 1943374291}
+    m_TransformParent: {fileID: 533756627}
     m_Modifications:
     - target: {fileID: 118520406100858636, guid: 473d12b6899fd4b248149028d04e98d0,
         type: 3}
@@ -9613,7 +9614,7 @@ PrefabInstance:
     - target: {fileID: 118520406100858637, guid: 473d12b6899fd4b248149028d04e98d0,
         type: 3}
       propertyPath: m_RootOrder
-      value: 2
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 118520406100858637, guid: 473d12b6899fd4b248149028d04e98d0,
         type: 3}
@@ -12231,7 +12232,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
-    m_TransformParent: {fileID: 1943374291}
+    m_TransformParent: {fileID: 649513277}
     m_Modifications:
     - target: {fileID: 5918813218277129026, guid: 8b4d7d33345c6429589834d9e53b9ebc,
         type: 3}
@@ -12241,22 +12242,37 @@ PrefabInstance:
     - target: {fileID: 5918813218277129027, guid: 8b4d7d33345c6429589834d9e53b9ebc,
         type: 3}
       propertyPath: m_RootOrder
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5918813218277129027, guid: 8b4d7d33345c6429589834d9e53b9ebc,
+        type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5918813218277129027, guid: 8b4d7d33345c6429589834d9e53b9ebc,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5918813218277129027, guid: 8b4d7d33345c6429589834d9e53b9ebc,
+        type: 3}
+      propertyPath: m_LocalScale.z
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5918813218277129027, guid: 8b4d7d33345c6429589834d9e53b9ebc,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 13
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5918813218277129027, guid: 8b4d7d33345c6429589834d9e53b9ebc,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.75
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5918813218277129027, guid: 8b4d7d33345c6429589834d9e53b9ebc,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 2
+      value: -4
       objectReference: {fileID: 0}
     - target: {fileID: 5918813218277129027, guid: 8b4d7d33345c6429589834d9e53b9ebc,
         type: 3}
@@ -12295,12 +12311,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8b4d7d33345c6429589834d9e53b9ebc, type: 3}
---- !u!4 &464339194 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 5918813218277129027, guid: 8b4d7d33345c6429589834d9e53b9ebc,
-    type: 3}
-  m_PrefabInstance: {fileID: 464339193}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &478923359 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -4216859302048453862, guid: d5c3072febdb3c047837082f578beb30,
@@ -13786,9 +13796,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 1913924722}
-  - {fileID: 1409111699}
-  - {fileID: 1972178516}
+  - {fileID: 358622292}
+  - {fileID: 649513277}
   m_Father: {fileID: 1045089603}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -17135,7 +17144,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
-    m_TransformParent: {fileID: 1943374291}
+    m_TransformParent: {fileID: 533756627}
     m_Modifications:
     - target: {fileID: 5918813218277129026, guid: 8b4d7d33345c6429589834d9e53b9ebc,
         type: 3}
@@ -17145,7 +17154,7 @@ PrefabInstance:
     - target: {fileID: 5918813218277129027, guid: 8b4d7d33345c6429589834d9e53b9ebc,
         type: 3}
       propertyPath: m_RootOrder
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5918813218277129027, guid: 8b4d7d33345c6429589834d9e53b9ebc,
         type: 3}
@@ -23128,9 +23137,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Unit 1:
+  m_text: 'Mortars can shoot from two squares away
 
-    Description'
+'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2100000, guid: 79459efec17a4d00a321bdcc27bbc385, type: 2}
@@ -38801,7 +38810,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
-    m_TransformParent: {fileID: 533756627}
+    m_TransformParent: {fileID: 1943374291}
     m_Modifications:
     - target: {fileID: 1037228558260173972, guid: e924903494ed94aeaa359fda1781e0e4,
         type: 3}
@@ -38811,7 +38820,7 @@ PrefabInstance:
     - target: {fileID: 1037228558260173973, guid: e924903494ed94aeaa359fda1781e0e4,
         type: 3}
       propertyPath: m_RootOrder
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1037228558260173973, guid: e924903494ed94aeaa359fda1781e0e4,
         type: 3}
@@ -46380,8 +46389,8 @@ MonoBehaviour:
   currentTeam: 0
   team1: {fileID: 533756626}
   team2: {fileID: 1943374290}
-  Gold1: 2000
-  Gold2: 2000
+  Gold1: 0
+  Gold2: 0
   income1: 0
   income2: 0
   shopUI: {fileID: 411776633}
@@ -49723,9 +49732,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Unit 1:
+  m_text: 'IFVS: Fast and deadly armored vehicles
 
-    Description'
+'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2100000, guid: 79459efec17a4d00a321bdcc27bbc385, type: 2}
@@ -52585,7 +52594,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
-    m_TransformParent: {fileID: 533756627}
+    m_TransformParent: {fileID: 1943374291}
     m_Modifications:
     - target: {fileID: 1037228558260173972, guid: e924903494ed94aeaa359fda1781e0e4,
         type: 3}
@@ -52595,12 +52604,12 @@ PrefabInstance:
     - target: {fileID: 1037228558260173973, guid: e924903494ed94aeaa359fda1781e0e4,
         type: 3}
       propertyPath: m_RootOrder
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1037228558260173973, guid: e924903494ed94aeaa359fda1781e0e4,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 29
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 1037228558260173973, guid: e924903494ed94aeaa359fda1781e0e4,
         type: 3}
@@ -52610,7 +52619,7 @@ PrefabInstance:
     - target: {fileID: 1037228558260173973, guid: e924903494ed94aeaa359fda1781e0e4,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 4
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 1037228558260173973, guid: e924903494ed94aeaa359fda1781e0e4,
         type: 3}
@@ -53271,9 +53280,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Unit 1:
-
-    Description'
+  m_text: 'Riflemen: The backbone of any army cheap and efficient'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2100000, guid: 79459efec17a4d00a321bdcc27bbc385, type: 2}
@@ -53478,9 +53485,9 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 649513277}
-  - {fileID: 464339194}
-  - {fileID: 358622292}
+  - {fileID: 1409111699}
+  - {fileID: 1913924722}
+  - {fileID: 1972178516}
   m_Father: {fileID: 1045089603}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -54563,7 +54570,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
-    m_TransformParent: {fileID: 533756627}
+    m_TransformParent: {fileID: 1943374291}
     m_Modifications:
     - target: {fileID: 6003126932037004940, guid: 4f9b7099e771a4a3c80ed0966d3fb99d,
         type: 3}
@@ -54583,7 +54590,7 @@ PrefabInstance:
     - target: {fileID: 6003126932037004940, guid: 4f9b7099e771a4a3c80ed0966d3fb99d,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 6
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 6003126932037004940, guid: 4f9b7099e771a4a3c80ed0966d3fb99d,
         type: 3}
