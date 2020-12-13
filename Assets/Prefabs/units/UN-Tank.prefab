@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 549432312490458054}
   m_Layer: 0
   m_Name: 2dModel
-  m_TagString: Unit
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -556,9 +556,9 @@ MonoBehaviour:
   tileBeingOccupied: {fileID: 0}
   damagedParticle: {fileID: 1908652125826162151, guid: 66dc3b0b00d9ec2449372775c9528d29,
     type: 3}
-  unitName: Skeleton Archer
-  moveSpeed: 3
-  attackRange: 4
+  unitName: UN Tank
+  moveSpeed: 4
+  attackRange: 1
   attackDamage: 5
   maxHealthPoints: 20
   currentHealthPoints: 0

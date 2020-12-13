@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 8979243831343947476}
   m_Layer: 0
   m_Name: 2dModel
-  m_TagString: Unit
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -406,7 +406,7 @@ MonoBehaviour:
   tileBeingOccupied: {fileID: 0}
   damagedParticle: {fileID: 1908652125826162151, guid: 66dc3b0b00d9ec2449372775c9528d29,
     type: 3}
-  unitName: UN IFV
+  unitName: UN Mortar
   moveSpeed: 1
   attackRange: 4
   attackDamage: 4

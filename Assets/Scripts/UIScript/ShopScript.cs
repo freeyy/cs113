@@ -45,23 +45,32 @@ public class ShopScript : MonoBehaviour
     void Start()
     {
         units = GameObject.FindGameObjectsWithTag("Unit");
-        setUnitInfo();
 
     }
 
     // Update is called once per frame
     void Update()
     {
+        setUnitInfo();
     }
 
     // set information for four unit
     public void setUnitInfo()
     {
-
-        setEachUnitInfo(Board1, Unit1, unit1cost);
-        setEachUnitInfo(Board2, Unit2, unit2cost);
-        setEachUnitInfo(Board3, Unit3, unit3cost);
-        setEachUnitInfo(Board4, Unit4, unit4cost);
+        if (GMS.currentTeam == 0)
+        {
+            setEachUnitInfo(Board1, Unit1, unit1cost);
+            setEachUnitInfo(Board2, Unit2, unit2cost);
+            setEachUnitInfo(Board3, Unit3, unit3cost);
+            setEachUnitInfo(Board4, Unit4, unit4cost);
+        }
+        else
+        {
+            setEachUnitInfo(Board1, Unit1_2, unit1cost);
+            setEachUnitInfo(Board2, Unit2_2, unit2cost);
+            setEachUnitInfo(Board3, Unit3_2, unit3cost);
+            setEachUnitInfo(Board4, Unit4_2, unit4cost);
+        }
 
     }
 

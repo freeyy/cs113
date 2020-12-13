@@ -55,9 +55,9 @@ MonoBehaviour:
   tileBeingOccupied: {fileID: 0}
   damagedParticle: {fileID: 1908652125826162151, guid: 66dc3b0b00d9ec2449372775c9528d29,
     type: 3}
-  unitName: UN IFV
-  moveSpeed: 1
-  attackRange: 4
+  unitName: Terrorist Mortar
+  moveSpeed: 2
+  attackRange: 2
   attackDamage: 4
   maxHealthPoints: 8
   currentHealthPoints: 0
@@ -339,7 +339,7 @@ GameObject:
   - component: {fileID: 4700467297205373765}
   m_Layer: 0
   m_Name: 2dModel
-  m_TagString: Unit
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
