@@ -178,7 +178,6 @@ public class ShopScript : MonoBehaviour
                     newUnit.transform.parent = Team2.transform;
                     newUnit.GetComponent<UnitScript>().changeHealthBarColour(0);
                     // flip the unit
-                    newUnit.GetComponent<UnitScript>().holder2D.GetComponent<SpriteRenderer>().flipX = true;
                     newUnit.GetComponent<UnitScript>().setMovementState(3);
                     newUnit.GetComponent<UnitScript>().holder2D.GetComponent<SpriteRenderer>().color = Color.gray;
                     map.tiles[posX, posY].tileOnMap.GetComponent<Cell>().unitOnTile = newUnit;
