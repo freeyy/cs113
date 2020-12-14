@@ -11222,19 +11222,19 @@ MonoBehaviour:
   Board1: {fileID: 694356642}
   Unit1: {fileID: 5918813218277129026, guid: 8b4d7d33345c6429589834d9e53b9ebc, type: 3}
   Unit1_2: {fileID: 1037228558260173972, guid: e924903494ed94aeaa359fda1781e0e4, type: 3}
-  unit1cost: 100
+  unit1cost: 200
   Board2: {fileID: 595275359}
   Unit2: {fileID: 118520406100858636, guid: 473d12b6899fd4b248149028d04e98d0, type: 3}
   Unit2_2: {fileID: 6003126932037004941, guid: 4f9b7099e771a4a3c80ed0966d3fb99d, type: 3}
-  unit2cost: 200
+  unit2cost: 300
   Board3: {fileID: 612794898}
   Unit3: {fileID: 7909281522190356000, guid: d5f1c6c2347cb4383a53d7d78d7c6ac0, type: 3}
   Unit3_2: {fileID: 6445621093786363182, guid: 32ea211a34a874796a6495fb78785b57, type: 3}
-  unit3cost: 200
+  unit3cost: 300
   Board4: {fileID: 1154547141}
   Unit4: {fileID: 2841687792048494862, guid: 9891020b0c6294e68b23445259c9fd19, type: 3}
   Unit4_2: {fileID: 1258712265107810121, guid: 6671682b8df174fa6a603c30c3e12d16, type: 3}
-  unit4cost: 300
+  unit4cost: 500
 --- !u!1 &413515968
 GameObject:
   m_ObjectHideFlags: 0
@@ -48508,8 +48508,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1765889829}
   - component: {fileID: 1765889832}
-  - component: {fileID: 1765889831}
   - component: {fileID: 1765889830}
+  - component: {fileID: 1765889831}
   m_Layer: 5
   m_Name: HelpMsg
   m_TagString: Untagged
@@ -48559,7 +48559,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1765889828}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Script: {fileID: 11500000, guid: 1344c3c82d62a2a41a3576d8abb8e3ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
@@ -48570,16 +48570,13 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
+  m_Texture: {fileID: 2800000, guid: 992bef5a8ce124fe9afa793fe4cc7a80, type: 3}
+  m_UVRect:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 1
+    height: 1
 --- !u!222 &1765889832
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -59725,7 +59722,6 @@ GameObject:
   - component: {fileID: 2142225445}
   - component: {fileID: 2142225449}
   - component: {fileID: 2142225448}
-  - component: {fileID: 2142225447}
   - component: {fileID: 2142225446}
   m_Layer: 5
   m_Name: BacktoMainMenuConfirm
@@ -59770,22 +59766,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   backUI: {fileID: 2142225444}
---- !u!114 &2142225447
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2142225444}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b64c986a540168c438767f951709c80b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  occupyUI: {fileID: 2142225444}
-  GMS: {fileID: 1667033356}
-  map: {fileID: 1667033354}
-  holdtime: {fileID: 3063815}
 --- !u!114 &2142225448
 MonoBehaviour:
   m_ObjectHideFlags: 0
