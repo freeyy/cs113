@@ -147,8 +147,8 @@ public class ShopScript : MonoBehaviour
             {
                 if (gold1 >= cost)
                 {
-                    gold1 -= cost;
-                    goldUI.SetText("GOLD: " + gold1.ToString());
+                    GMS.Gold1 -= cost;
+                    goldUI.SetText("GOLD: " + GMS.Gold1.ToString());
                     GameObject newUnit = Instantiate(unit1, new Vector3(posX, 0.75f, posY), Quaternion.identity);
                     // set unit's tileBeing Occupied to the tile it stands on
                     newUnit.GetComponent<UnitScript>().tileBeingOccupied = map.tiles[posX, posY].tileOnMap;
@@ -169,8 +169,8 @@ public class ShopScript : MonoBehaviour
             {
                 if (gold2 >= cost)
                 {
-                    gold2 -= cost;
-                    goldUI.SetText("GOLD: " + gold2.ToString());
+                    GMS.Gold2 -= cost;
+                    goldUI.SetText("GOLD: " + GMS.Gold2.ToString());
                     GameObject newUnit = Instantiate(unit2, new Vector3(posX, 0.75f, posY), Quaternion.identity);
                     // change unit's teamNum
                     newUnit.GetComponent<UnitScript>().teamNum = 1;

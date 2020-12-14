@@ -413,7 +413,8 @@ public class tileMapScript : MonoBehaviour
     public bool unitCanEnterTile(int x, int y)
     {
         if (tiles[x, y] == null) {
-            Debug.LogError("NULL: " + x.ToString() + ", " + y.ToString());
+            //Debug.LogError("NULL: " + x.ToString() + ", " + y.ToString());
+            return false;
         }
         if (tiles[x, y].tileOnMap.GetComponent<Cell>().unitOnTile != null)
         {
@@ -697,7 +698,7 @@ public class tileMapScript : MonoBehaviour
         foreach (Node n in totalAttackableTiles)
         {
 
-            if (tiles[n.x, n.y].tileOnMap.GetComponent<Cell>().unitOnTile != null)
+            if (tiles[n.x, n.y]!= null && tiles[n.x, n.y].tileOnMap.GetComponent<Cell>().unitOnTile != null)
             {
                 GameObject unitOnCurrentlySelectedTile = tiles[n.x, n.y].tileOnMap.GetComponent<Cell>().unitOnTile;
                 if (unitOnCurrentlySelectedTile.GetComponent<UnitScript>().teamNum != selectedUnit.GetComponent<UnitScript>().teamNum)

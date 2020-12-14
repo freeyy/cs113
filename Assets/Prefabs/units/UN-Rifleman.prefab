@@ -362,7 +362,7 @@ MonoBehaviour:
   damagedParticle: {fileID: 1908652125826162151, guid: 66dc3b0b00d9ec2449372775c9528d29,
     type: 3}
   unitName: UN Rifleman
-  moveSpeed: 2
+  moveSpeed: 3
   attackRange: 1
   attackDamage: 2
   maxHealthPoints: 10
